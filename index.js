@@ -205,10 +205,6 @@ const stapleApp = async ({pkgPath}) => {
 };
 
 module.exports = async parameters => {
-  if (parameters.electronPlatformName !== 'darwin') {
-    return;
-  }
-
   // Read and validate auth information from environment variables
   let authInfo;
   try {
