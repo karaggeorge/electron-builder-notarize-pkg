@@ -246,7 +246,7 @@ module.exports = async parameters => {
   const signedPath = path.resolve(dir, `${name}-signed.pkg`);
 
   console.log(`Signing ${pkgPath}...`);
-  await signPackage(productSignCertificateName, pkgPath, signedPath);
+  await signPackage({productSignCertificateName, pkgPath, signedPath});
 
   fs.renameSync(pkgPath, path.resolve(dir, `${name}-unsigned.pkg`));
   fs.renameSync(signedPath, pkgPath);
