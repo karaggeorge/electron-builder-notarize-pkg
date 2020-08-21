@@ -171,7 +171,7 @@ const waitForNotarize = async ({uuid, notarizeOpts}) => {
 
   if (notarizationInfo.status === 'in progress') {
     await delay(30000);
-    await waitForNotarize({uuid, notarizeOpts});
+    return waitForNotarize({uuid, notarizeOpts});
   }
 
   if (notarizationInfo.status === 'invalid') {
