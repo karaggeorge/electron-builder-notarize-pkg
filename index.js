@@ -15,15 +15,8 @@ const getAuthInfo = () => {
     APPLE_ID_PASSWORD: appleIdPassword,
     API_KEY_ID: appleApiKey,
     API_KEY_ISSUER_ID: appleApiIssuer,
-    TEAM_SHORT_NAME: teamShortName,
-    PSC_NAME: productSignCertificateName
+    TEAM_SHORT_NAME: teamShortName
   } = process.env;
-
-  if (!productSignCertificateName) {
-    throw new Error(
-      'PSC_NAME is required for product signing.'
-    );
-  }
 
   if (!appleId && !appleIdPassword && !appleApiKey && !appleApiIssuer) {
     throw new Error(
@@ -55,8 +48,7 @@ const getAuthInfo = () => {
     appleIdPassword,
     appleApiKey,
     appleApiIssuer,
-    teamShortName,
-    productSignCertificateName
+    teamShortName
   };
 };
 
@@ -67,19 +59,6 @@ const isEnvTrue = value => {
   }
 
   return value === 'true' || value === '' || value === '1';
-};
-
-const signPackage = async ({productSignCertificateName, pkgPath, signedPath}) => {
-  try {
-    await execa('productsign', [
-      '--sign',
-      productSignCertificateName,
-      pkgPath,
-      signedPath
-    ]);
-  } catch (error) {
-    throw new Error(`Failed to sign ${pkgPath}\n\n${error.message}`);
-  }
 };
 
 const getAuthorizingArgs = notarizeOptions => {
@@ -232,7 +211,6 @@ module.exports = async parameters => {
     return;
   }
 
-  const {productSignCertificateName, ...notarizeOptions} = authInfo;
   const {artifactPaths, configuration: {appId}} = parameters;
 
   const pkgPath = artifactPaths.find(filePath => path.extname(filePath) === '.pkg');
@@ -242,23 +220,14 @@ module.exports = async parameters => {
     return;
   }
 
-  const {dir, name} = path.parse(pkgPath);
-  const signedPath = path.resolve(dir, `${name}-signed.pkg`);
-
-  console.log(`Signing ${pkgPath}...`);
-  await signPackage({productSignCertificateName, pkgPath, signedPath});
-
-  fs.renameSync(pkgPath, path.resolve(dir, `${name}-unsigned.pkg`));
-  fs.renameSync(signedPath, pkgPath);
-
   console.log(`Notarizing ${pkgPath}...`);
   const uuid = await startNotarizingPackage({
     pkgPath,
     appId,
-    notarizeOpts: notarizeOptions
+    notarizeOpts: authInfo
   });
   await delay(10000);
-  await waitForNotarize({uuid, notarizeOpts: notarizeOptions});
+  await waitForNotarize({uuid, notarizeOpts: authInfo});
   await stapleApp({pkgPath});
   console.log(`Notarized ${pkgPath} successfully.`);
 };

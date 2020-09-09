@@ -47,16 +47,6 @@ If your developer account is a member of multiple teams or organizations, you mi
 export TEAM_SHORT_NAME=XXXXXXXXX
 ```
 
-### Product Sign Certificate Name
-
-You will need to provide your certificate name for the signing.
-
-You can find the name of your certificates in Keychain Access. Be careful to use the "Installer" certificate, not the "Application Certificate"
-
-```sh
-export PSC_NAME='Developer ID Installer: NAME (1234ABCDEFG)'
-```
-
 ## Credits
 
 This package is inspired by this [wiki](https://github.com/Wicklets/wick-editor/wiki/Building-Desktop-Editors-for-Release#part-4-signing-and-notarizing-installers-for-macos)
