@@ -13,6 +13,7 @@ const getAuthInfo = () => {
   const {
     APPLE_ID: appleId,
     APPLE_ID_PASSWORD: appleIdPassword,
+    APPLE_TEAM_ID: appleTeamId,
     API_KEY_ID: appleApiKey,
     API_KEY_ISSUER_ID: appleApiIssuer,
     TEAM_SHORT_NAME: teamShortName
@@ -25,15 +26,15 @@ const getAuthInfo = () => {
     );
   }
 
-  if ((appleId || appleIdPassword) && (appleApiKey || appleApiIssuer)) {
+  if ((appleId || appleIdPassword || appleTeamId) && (appleApiKey || appleApiIssuer)) {
     throw new Error(
       'Should only provide either Apple ID or API key environment variables.'
     );
   }
 
-  if ((appleId && !appleIdPassword) || (!appleId && appleIdPassword)) {
+  if (!appleId || !appleIdPassword || !appleTeamId) {
     throw new Error(
-      'One of APPLE_ID and APPLE_ID_PASSWORD environment variables is missing for notarization.'
+      'One of APPLE_ID, APPLE_ID_PASSWORD, and APPLE_TEAM_ID environment variables is missing for notarization.'
     );
   }
 
@@ -46,6 +47,7 @@ const getAuthInfo = () => {
   return {
     appleId,
     appleIdPassword,
+    appleTeamId,
     appleApiKey,
     appleApiIssuer,
     teamShortName
@@ -65,12 +67,13 @@ const getAuthorizingArgs = notarizeOptions => {
   const {
     appleId,
     appleIdPassword,
+    appleTeamId,
     appleApiKey,
     appleApiIssuer
   } = notarizeOptions;
 
   return appleId ? [
-    '--username', appleId, '--password', appleIdPassword
+    '--username', appleId, '--password', appleIdPassword, '--asc-provider', appleTeamId
   ] : [
     '--apiKey', appleApiKey, '--apiIssuer', appleApiIssuer
   ];
