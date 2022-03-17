@@ -1,5 +1,5 @@
 {
-  "name": "electron-builder-notarize-pkg-myh",
+  "name": "electron-builder-notarize-pkg",
   "version": "1.3.0",
   "main": "index.js",
   "license": "MIT",
