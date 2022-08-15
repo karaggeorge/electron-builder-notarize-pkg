@@ -183,6 +183,19 @@ const stapleApp = async ({pkgPath}) => {
   }
 };
 
+const notarizePkg = async (appId, notarizeOpts, pkgPath) => {
+  console.log(`Notarizing ${pkgPath}...`);
+  const uuid = await startNotarizingPackage({
+    pkgPath,
+    appId,
+    notarizeOpts
+  });
+  await delay(10000);
+  await waitForNotarize({uuid, notarizeOpts});
+  await stapleApp({pkgPath});
+  console.log(`Notarized ${pkgPath} successfully.`);
+}
+
 module.exports = async parameters => {
   // Read and validate auth information from environment variables
   let authInfo;
@@ -213,21 +226,12 @@ module.exports = async parameters => {
 
   const {artifactPaths, configuration: {appId}} = parameters;
 
-  const pkgPath = artifactPaths.find(filePath => path.extname(filePath) === '.pkg');
+  const pkgPaths = artifactPaths.filter(filePath => path.extname(filePath) === '.pkg');
 
-  if (!pkgPath) {
+  if (pkgPaths.length === 0) {
     console.log('Skipping notarizing, since no pkg artifact was found');
     return;
   }
 
-  console.log(`Notarizing ${pkgPath}...`);
-  const uuid = await startNotarizingPackage({
-    pkgPath,
-    appId,
-    notarizeOpts: authInfo
-  });
-  await delay(10000);
-  await waitForNotarize({uuid, notarizeOpts: authInfo});
-  await stapleApp({pkgPath});
-  console.log(`Notarized ${pkgPath} successfully.`);
+  await Promise.all(pkgPaths.map(pkgPath => notarizePkg(appId, authInfo, pkgPath)))
 };
